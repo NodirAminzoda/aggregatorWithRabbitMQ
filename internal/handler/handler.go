@@ -20,12 +20,12 @@ func (h *Handler) PreCheck(w http.ResponseWriter, r *http.Request) {
 	var request precheck.Request
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		h.log.ErrorWithPrefix("", "[PreCheck] badRequest body", err)
+		h.log.ErrorWithPrefix(requestID, "[PreCheck] badRequest body", err)
 		response.WriteResponse(w, h.log, http.StatusBadRequest, "Неверный формат входных данных", "", nil)
 		return
 	}
 
-	h.log.InfoWithPrefix("", "[PreCheck] Request Body", fmt.Sprintf("%v", request))
+	h.log.InfoWithPrefix(requestID, "[PreCheck] Request Body", fmt.Sprintf("%+v", request))
 
 	resp, err := h.service.PreCheckService(ctx, request)
 	if err != nil {
@@ -34,5 +34,5 @@ func (h *Handler) PreCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.WriteResponse(w, h.log, http.StatusOK, "Ok", requestID, resp)
+	response.WriteResponse(w, h.log, http.StatusOK, "OK", requestID, resp)
 }

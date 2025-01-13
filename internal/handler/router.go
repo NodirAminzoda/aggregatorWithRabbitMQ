@@ -1,12 +1,14 @@
 package handler
 
 import (
-	"github.com/gorilla/mux"
-
 	"aggreagtor/internal/config"
+	"aggreagtor/internal/metric"
 	"aggreagtor/internal/middleware"
 	"aggreagtor/internal/modules/service"
 	"aggreagtor/pkg/zerolog"
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"net/http"
 )
 
 type Handler struct {
@@ -24,8 +26,16 @@ func New(cfg *config.Server, log *zerolog.Logger, service service.IService) *Han
 }
 
 func (h *Handler) InitRoute() *mux.Router {
+	//initialization metrics
+	metric.InitMetrics()
+
 	router := mux.NewRouter()
-	router.Use(middlware.SetXRequestID)
-	router.HandleFunc("/precheck", h.PreCheck)
+
+	router.Handle("/metrics", promhttp.Handler())
+	router.Use(middlware.SetXRequestID, metric.MetricsMiddleware) // add middleware
+
+	router.HandleFunc("/precheck", h.PreCheck).Methods(http.MethodPost)
+
+	// add route for metrics
 	return router
 }

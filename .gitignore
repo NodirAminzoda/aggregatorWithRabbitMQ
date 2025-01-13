@@ -1,1 +1,3 @@
 internal/config/config.yaml
+docker-compose.yaml
+prometheus.yml

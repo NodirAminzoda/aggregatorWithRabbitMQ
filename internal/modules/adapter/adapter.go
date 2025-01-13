@@ -35,7 +35,7 @@ type IAdapter interface {
 }
 
 func (a *Adapter) startConsumer() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
 		a.log.Error(fmt.Sprintf("Failed to connect to RabbitMQ: %v", err))
 		return
@@ -76,7 +76,7 @@ func (a *Adapter) startConsumer() {
 }
 
 func (a *Adapter) PreCheck(request precheck.Request, requestID string) (*precheck.Response, error) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
 		a.log.ErrorWithPrefix(requestID, "unable to open connection to RabbitMQ server", err)
 		return nil, err
@@ -148,6 +148,7 @@ func (a *Adapter) PreCheck(request precheck.Request, requestID string) (*prechec
 			a.log.ErrorWithPrefix(requestID, "can't unmarshal response", err)
 			return nil, err
 		}
+		a.log.InfoWithPrefix(requestID, "Response body", fmt.Sprintf("%+v", result))
 		return &result, nil
 	case <-ctx.Done():
 		a.log.ErrorWithPrefix(requestID, "timeout waiting for response", ctx.Err())
